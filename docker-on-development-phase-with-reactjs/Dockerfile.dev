@@ -1,0 +1,19 @@
+# Dockerfile.dev only use for development phase
+FROM node:lts-alpine
+
+WORKDIR '/app'
+
+COPY package.json .
+RUN npm install
+
+# Using copy for development is just a disaster, we always need to rebuild the image after make some changes on our code
+# To solve this problem, we have to use volumes instead on docker run command
+COPY . . 
+
+CMD ["npm", "run", "start"]
+
+# To build images using dockerfile.dev we have to run using `build -f Dockerfile.dev .`
+
+# To run images using volumes, change a your command from `docker run -p 3000:3000 <image id>` to `docker run -p 3000:3000 -v app/node_modules -v $(pwd):/app <image id>`
+# The first -v arguments for put a bookmark on node_modules folder so we don't have to pass node_modules if we don't have any node_modules in this directory.
+# The second -v arguments need 2 value, your current directory, and your target directory same as WORKDIR above

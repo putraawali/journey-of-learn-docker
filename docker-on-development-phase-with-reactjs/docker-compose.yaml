@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+    react-app:
+        # build: . # It will refer to Dockerfile, not our Dockerfile.dev for development purpose
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - "3000:3000"
+        volumes:
+            - /app/node_modules # Write volumes without : before directory will bookmark the volumes
+            - .:/app # Mount volumes to refer to our expected directory from inside the container
+
+
+    # Another idea to run test using docker compose instead of docker run command with customs starting input
+    # react-app-tes:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile.dev
+    #     volumes:
+    #         - /app/node_modules
+    #         - .:/app
+    #     command: ["npm", "run", "test"]
