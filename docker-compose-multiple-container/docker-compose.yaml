@@ -1,0 +1,54 @@
+# Talk to docker compose that we need to create container using redis and our simple node js project
+
+# Required line, version of docker compose we want to use
+version: "3"
+
+# List of our containers we want to use inside services
+services:
+    # Name of container so called redis-server
+    redis-server:
+        image: "redis" # Using redis image
+
+    # Name of container so called node-app
+    node-app:
+        build: . # Build nodejs project using Dockerfile
+        ports: # List of port open to our local machine, not to open to another containers
+            - "8080:8080" # {port accessed from our local machne}:{port used inside the container}]
+
+        #restart policies
+        # no: never attempt to restart this container if it crashes or stops (default)
+        # always: If this container stops for "any reason", always attempt to restart it
+        # on-failure: Only restart if the container stops with an error code
+        # unless-stoped: Always restart unless we (developers) forcibly stop it
+        restart: always
+# To execute docker compose use command:
+# - `docker-compose up` equals to `docker run myImage`
+# - `docker-compose up` equals to `docker build . + docker run myImage`
+# - `docker-compose up -d` will launch docker on background
+# - `docker-compose down` will stop and remove the container and networks
+
+# ===== About Networks =====
+
+# No need to create networks because docker compose by default already create their own default network. If we want to specify some networks on some container, we need to create network inside networks property
+
+## Example:
+
+# services:
+#   redis-server:
+#     ...
+#     networks:
+#       - redis-network
+#   node-app:
+#     ...
+#     networks:
+#       - node-network
+
+# networks:
+#   redis-network:
+#   node-network:
+
+# On config each container we already set their networks connection.
+# On this case:
+# - redis-server using network redis-network
+# - node-app using network node-network
+# Since they are on different networks, node-app will not able to access the redis-server
