@@ -12,6 +12,7 @@ services:
         image: redis:latest
     nginx:
         restart: always
+        image: putraawali/fibonachi-nginx
         build:
             context: ./nginx
             dockerfile: Dockerfile
@@ -21,6 +22,7 @@ services:
         ports:
             - "8080:80" # We will access our project from port 8080
     api:
+        image: putraawali/fibonachi-server
         build:
             context: ./server
             dockerfile: Dockerfile
@@ -36,6 +38,7 @@ services:
             - postgres-server
             - redis-server
     worker:
+        image: putraawali/fibonachi-worker
         build:
             context: ./worker
             dockerfile: Dockerfile
@@ -45,6 +48,7 @@ services:
         depends_on:
             - redis-server
     client:
+        image: putraawali/fibonachi-client
         build:
             context: ./client
             dockerfile: Dockerfile
