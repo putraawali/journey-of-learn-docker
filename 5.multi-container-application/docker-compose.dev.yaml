@@ -1,0 +1,66 @@
+# Using docker compose to make us easier run all image in single command
+version: "3.9"
+
+services:
+    postgres-server:
+        image: postgres:14-alpine
+        environment:
+            - POSTGRES_PASSWORD=postgres
+        ports:
+            - "54321:5432"
+    redis-server:
+        image: redis:latest
+    nginx:
+        restart: always # No matter what, we need nginx to always running
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile.dev
+        depends_on:
+            - api
+            - client
+        ports:
+            - "8080:80" # We will access our project from port 8080
+    api:
+        build:
+            context: ./server
+            dockerfile: Dockerfile.dev
+        volumes:
+            - /app/node_modules # Tell docker to not touch our node_modules, no need to mount node_modules
+            - ./server:/app
+        environment:
+            - REDIS_HOST=redis-server
+            - REDIS_PORT=6379
+            - PGUSER=postgres
+            - PGHOST=postgres-server
+            - PGDATABASE=postgres
+            - PGPASSWORD=postgres
+            - PGPORT=5432
+        depends_on:
+            - postgres-server
+            - redis-server
+    worker:
+        build:
+            context: ./worker
+            dockerfile: Dockerfile.dev
+        volumes:
+            - /app/node_modules # Tell docker to not touch our node_modules, no need to mount node_modules
+            - ./worker:/app
+        environment:
+            - REDIS_HOST=redis-server
+            - REDIS_PORT=6379
+        depends_on:
+            - redis-server
+    client:
+        build:
+            context: ./client
+            dockerfile: Dockerfile.dev
+        volumes:
+            - /app/node_modules
+            - ./client:/app
+        depends_on:
+            - api
+        environment:
+            - WDS_SOCKET_PORT=0 # On development mode, react required us to use web socket which by default already served on our local machine, but docker doesn't have this on nginx
+# On this docker-compose file, we doesn't specify any routes on each container, we will do it using nginx instead to routing request.
+# You can see at ./client/fib.js, all request have prefix /api on it, but on the server we don't have endpoint with prefix /api
+# We will do nginx routing for all request, if request have /api prefix on url, we will send them to server, otherwise we will send them to client instead

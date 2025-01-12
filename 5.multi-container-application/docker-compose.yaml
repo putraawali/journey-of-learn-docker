@@ -1,4 +1,4 @@
-# Using docker compose to make us easier run all image in single command
+# Docker compose for production ready
 version: "3.9"
 
 services:
@@ -11,10 +11,10 @@ services:
     redis-server:
         image: redis:latest
     nginx:
-        restart: always # No matter what, we need nginx to always running
+        restart: always
         build:
             context: ./nginx
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         depends_on:
             - api
             - client
@@ -23,10 +23,7 @@ services:
     api:
         build:
             context: ./server
-            dockerfile: Dockerfile.dev
-        volumes:
-            - /app/node_modules # Tell docker to not touch our node_modules, no need to mount node_modules
-            - ./server:/app
+            dockerfile: Dockerfile
         environment:
             - REDIS_HOST=redis-server
             - REDIS_PORT=6379
@@ -41,10 +38,7 @@ services:
     worker:
         build:
             context: ./worker
-            dockerfile: Dockerfile.dev
-        volumes:
-            - /app/node_modules # Tell docker to not touch our node_modules, no need to mount node_modules
-            - ./worker:/app
+            dockerfile: Dockerfile
         environment:
             - REDIS_HOST=redis-server
             - REDIS_PORT=6379
@@ -53,14 +47,6 @@ services:
     client:
         build:
             context: ./client
-            dockerfile: Dockerfile.dev
-        volumes:
-            - /app/node_modules
-            - ./client:/app
+            dockerfile: Dockerfile
         depends_on:
             - api
-        environment:
-            - WDS_SOCKET_PORT=0 # On development mode, react required us to use web socket which by default already served on our local machine, but docker doesn't have this on nginx
-# On this docker-compose file, we doesn't specify any routes on each container, we will do it using nginx instead to routing request.
-# You can see at ./client/fib.js, all request have prefix /api on it, but on the server we don't have endpoint with prefix /api
-# We will do nginx routing for all request, if request have /api prefix on url, we will send them to server, otherwise we will send them to client instead
