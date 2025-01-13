@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: client-node-port
+spec:
+    type: NodePort #type NodePort is type for expose a container to the outside world. It only good for development purposes
+    ports: # List of port that we open up to object
+        - port: 3050
+          targetPort: 3000 # Identical with container port on client-pod.yaml
+          nodePort: 31515 #Port that we will write on browser `url:31515``
+    selector:
+        component: web # Identical with labels on client-pod.yaml, both key and value.
