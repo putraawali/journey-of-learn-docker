@@ -7,6 +7,10 @@ metadata:
 spec:
     containers:
         - name: client
-          image: putraawali/fibonachi-client
+          image: putraawali/fibonachi-worker # changed from putraawali/fibonachi-client (succesfully updated and configured)
           ports:
-              - containerPort: 3000
+              - containerPort: 9999 # changed from 3000 to 9999 => Throw error from k8s
+
+# Some limitation if we want to updates config, we will get error message if we run again kubectl apply -f client-pod.yaml
+# On the message, we will informed that we are forbiden to updates any fields other than spec.containers[*].image, spec.initContainers[*].image, spec.containers[*].image, ,`spec.activeDeadlineSeconds`,`spec.tolerations` (only additions to existing tolerations),`spec.terminationGracePeriodSeconds`
+# To solve this limitation, instead of using Pod config file, we will use Deployment config
