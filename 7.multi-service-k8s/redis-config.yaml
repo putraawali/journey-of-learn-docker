@@ -1,0 +1,32 @@
+# We able to write more than 1 object in single file
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: redis-deployment
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            component: redis
+    template:
+        metadata:
+            labels:
+                component: redis
+        spec:
+            containers:
+                - name: redis
+                  image: redis
+                  ports:
+                      - containerPort: 6379
+--- # Use triple dash here to seperate object definition
+apiVersion: v1
+kind: Service
+metadata:
+    name: redis-cluster-ip-service
+spec:
+    type: ClusterIP
+    ports:
+        - port: 6379
+          targetPort: 6379
+    selector:
+        component: redis
