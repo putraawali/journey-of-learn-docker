@@ -16,4 +16,16 @@ spec:
                 - name: client
                   image: putraawali/fibonachi-client
                   ports:
-                      - containerPort: 9999 # If we make some changes on template, k8s will delete the existing pods and create a new one using new spec config, in this case we will not see any error from k8s after changing the config of the pods
+                      - containerPort: 3000 # If we make some changes on template, k8s will delete the existing pods and create a new one using new spec config, in this case we will not see any error from k8s after changing the config of the pods
+
+# Issues:
+# What we have todo if we update our image and push to registry, but still using same tag? Do we need to delete one by one of our pods and make deployment to somehow detect that we lost a pod, and it will make a new one using latest image?
+# If so, it will be painful if we have tons of pods.
+
+# ================================ Solution 1 ================================
+# Possible solutions is we use an imparative command to make the deployment to update it self
+# `kubectl set image {object_type}/{object_name} {container_name}={new image to use}`
+# Example `kubectl set image deployment/client-deployment client=putraawali/fibonachi-client:latest`
+
+# ================================ Solution 2 ================================
+# Another solution is not using latest tag on docker image, always use new version tag and we need to adds an extra step in the production deployment process, maybe CI, to update the config file and rerun the apply command
