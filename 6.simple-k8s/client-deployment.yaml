@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: client-deployment
+spec:
+    replicas: 1 #Specifying number of replica for each pod that we define on the template
+    selector: #Similar with selector in our client-node-pod.yaml before
+        matchLabels: # Will match the label the defined on template.metadata.labels.component below
+            component: web
+    template: # Similar to our client-pod.yaml, this property allow us to define every single pod that we want to create by this Deployment object, just like we made before on client-pod.yaml
+        metadata:
+            labels:
+                component: web
+        spec:
+            containers:
+                - name: client
+                  image: putraawali/fibonachi-client
+                  ports:
+                      - containerPort: 9999 # If we make some changes on template, k8s will delete the existing pods and create a new one using new spec config, in this case we will not see any error from k8s after changing the config of the pods
