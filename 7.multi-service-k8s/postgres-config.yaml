@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postgres-deployment
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            component: postgres
+    template:
+        metadata:
+            labels:
+                component: postgres
+        spec:
+            # Attacht volumes using claim that we created on database-persistent-volume-claim.yaml
+            volumes:
+                - name: postgres-storage
+                  persistentVolumeClaim:
+                      claimName: database-persistent-volume-claim
+            containers:
+                - name: postgres
+                  image: postgres:14-alpine
+                  env:
+                      - name: POSTGRES_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: pgpassword
+                                key: PGPASSWORD
+                  ports:
+                      - containerPort: 5432
+                  volumeMounts:
+                      - name: postgres-storage # This name should be identical with volumes that we define before on volumes[0].name
+                        mountPath: /var/lib/postgresql/data # Location we want to store
+                        subPath: postgres # Any data that stored inside the mountPath will be store in our postgres-storage on this folder at persistent volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: postgres-cluster-ip-service
+spec:
+    type: ClusterIP
+    ports:
+        - port: 5432
+          targetPort: 5432
+    selector:
+        component: postgres

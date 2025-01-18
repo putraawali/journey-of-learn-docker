@@ -17,3 +17,23 @@ spec:
                   image: putraawali/fibonachi-server
                   ports:
                       - containerPort: 5000
+                  env:
+                      - name: REDIS_HOST
+                        value: redis-cluster-ip-service
+                      - name: REDIS_PORT
+                        value: "6379"
+                      - name: PGUSER
+                        value: postgres
+                      - name: PGHOST
+                        value: postgres-cluster-ip-service
+                      - name: PGDATABASE
+                        value: postgres
+                      - name: PGPORT
+                        value: "5432"
+                        # For secret value like password, we should create a secret using kubectl command
+                        # `kubectl create secret generic <secret_name> --from-literal key=value`
+                      - name: PGPASSWORD #This key related to server image
+                        valueFrom:
+                            secretKeyRef:
+                                name: pgpassword
+                                key: PGPASSWORD # This key related to our key when create secret
