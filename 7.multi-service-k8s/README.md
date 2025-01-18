@@ -29,3 +29,13 @@ PV and PVC relationship:
 -   PVC = Demand: PVC is the demand for that storage.
 -   Matching (Binding): Kubernetes matches PVCs to PVs based on requirements (capacity, access mode, etc.).
 -   Access by Pod: Once a PVC is matched to a PV, Pods can access the PV by referencing the PVC.
+
+# Ingress
+
+Ingress is not available automaticaly if we use Docker Desktop. We should enable it first using these command from [Kubernetes](https://kubernetes.github.io/ingress-nginx/deploy/#quick-start) documentation.
+
+Open the docs and scroll down until you find **If you don't have Helm**
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+```
